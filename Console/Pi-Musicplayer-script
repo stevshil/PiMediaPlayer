@@ -1,0 +1,35 @@
+#!/bin/bash
+MusicDir=$HOME/PiMusic
+Playlist=$HOME/PiMusic/playlist
+ChkSum=`cat $HOME/MusicChkSum`
+
+# Check if music library has changed
+if [ -z "$ChkSum" ]
+then
+	ChkSum=0
+fi
+
+# Check if playlist exists or is empty
+if [ ! -e $Playlist -o ! -s $Playlist -o `find $MusicDir -type f | sum | awk '{print $1}'` != $ChkSum ]
+then
+	for suffix in m3u txt jpg url html htm
+	do
+		find $MusicDir -name "*.$suffix" -exec rm -f {} \; 2>/dev/null
+		suffix2=`echo "$suffix" | tr '[a-z]' '[A-Z]'`
+		find $MusicDir -name "*.$suffix2" -exec rm -f {} \; 2>/dev/null
+	done
+
+	find $MusicDir -type f > $Playlist
+	find $MusicDir -type f | sum | awk '{print $1}' >$HOME/MusicChkSum
+fi
+
+if ps -ef | grep -v pulseaudio | grep -v grep >/dev/null 2>&1
+then
+	pulseaudio >/dev/null 2>&1 &
+fi
+
+#mplayer -nogui -shuffle -loop 0 -af volnorm=2:0.75 -playlist $Playlist </dev/null
+if ! ps -ef | grep mplayer | grep -v grep >/dev/null 2>&1
+then
+	mplayer nogui -shuffle -loop 0 -af volnorm=2:0.75 -playlist $Playlist </dev/null
+fi
