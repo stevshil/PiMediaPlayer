@@ -22,14 +22,13 @@ def playlistmix(theplaylist):
   playlist=tmplist.split('\n')
   return playlist
 
-#afile="/Data/Music/Ottawan - D.I.S.C.O. (1979).mp3"
 title="Pi Kitchen Player"
 img="rpi-icon.gif"
 buttons=["<<",">\"",">>","X"]
 isplaying=0
 ispaused=0
 #roplaylist=os.environ['HOME']+"/PiMusic/playlist"
-roplaylist="playlist"
+roplaylist="../ignore/playlist"
 thelist=playlistmix(roplaylist)
 maxFile=len(thelist)
 curFile=0
@@ -72,5 +71,5 @@ while controls != "X":
     curpid=playing.pid
 
   # Show controls
-  songname=ntpath.basename(thelist[curFile])
+  songname=ntpath.basename(thelist[curFile]+' - '+str(curpid)+' - '+str(playing.pid))
   controls=buttonbox(songname, image=img, choices=buttons)
