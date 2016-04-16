@@ -1,0 +1,48 @@
+#!/usr/bin/python
+
+from easygui import *
+import sys
+import subprocess
+import os
+
+def sendcmd(cmd):
+  os.system('echo '+cmd+' >/tmp/piplayer.in')
+
+def getdata():
+  output=subprocess.check_output(["./getinfo"])
+  return output
+
+def shutdown():
+  os.system('sudo init 0')
+
+title="Pi Kitchen Player"
+img="rpi-icon.gif"
+buttons=["<<",">\"",">>","X"]
+controls=""
+info=getdata()
+oldtrack="abc"
+newtrack=info
+
+while controls != "X":
+
+  if controls == "X":
+    sendcmd('q')
+    shutdown()
+
+  if controls == ">\"":
+    sendcmd("p")
+  if controls == ">>":
+    sendcmd("pt_step 1")
+    oldtrack=newtrack
+    info=getdata()
+    newtrack=info
+    if oldtrack == newtrack:
+      sendcmd('q')
+      shutdown()
+  if controls == "<<":
+    sendcmd("pt_step -1 force")
+    info=getdata()
+
+  # Show controls
+  print "Old: "+oldtrack+" : New: "+newtrack
+  controls=buttonbox(info, image=img, choices=buttons)

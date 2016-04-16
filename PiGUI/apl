@@ -1,7 +1,0 @@
-#!/bin/bash
-
-procId=$$
-
-mkfifo /tmp/myplay.${procId}
-
-mplayer -slave -input file=/tmp/myplay.${procId} nogui -loop 0 -af volnorm=2:0.75 -playlist playlist

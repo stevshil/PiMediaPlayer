@@ -1,0 +1,10 @@
+#!/bin/bash
+
+data=$(echo get_file_name >/tmp/piplayer.in; sleep 1; tail /tmp/piplayer.out | egrep 'ANS_FILENAME|Playing')
+
+if echo "$data" | grep '/' >/dev/null
+then
+	basename "$data" | head -1
+else
+	echo "$data" | sed 's/ANS_FILENAME=//' | sed "s/'//g" | head -1
+fi

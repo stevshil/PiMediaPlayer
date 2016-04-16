@@ -1,0 +1,46 @@
+#!/bin/bash
+#MusicDir=$HOME/PiMusic
+MusicDir="../ignore/music"
+#Playlist=$HOME/PiMusic/playlist
+Playlist="../ignore/playlist"
+#ChkSum=`cat $HOME/MusicChkSum`
+ChkSum=`cat ../ignore/MusicChkSum`
+#MIXEDLIST=$HOME/PiMusic/mixedlist
+MIXEDLIST="../ignore/mixedlist"
+
+# Check if music library has changed
+if [ -z "$ChkSum" ]
+then
+	ChkSum=0
+fi
+
+# Check if playlist exists or is empty
+if [ ! -e $Playlist -o ! -s $Playlist -o `find $MusicDir -type f | sum | awk '{print $1}'` != $ChkSum ]
+then
+	for suffix in m3u txt jpg url html htm
+	do
+		find $MusicDir -name "*.$suffix" -exec rm -f {} \; 2>/dev/null
+		suffix2=`echo "$suffix" | tr '[a-z]' '[A-Z]'`
+		find $MusicDir -name "*.$suffix2" -exec rm -f {} \; 2>/dev/null
+	done
+
+	find $MusicDir -type f > $Playlist
+	find $MusicDir -type f | sum | awk '{print $1}' >$HOME/MusicChkSum
+fi
+
+# Shuffle playlist
+sort -R $Playlist > $MIXEDLIST
+
+if ps -ef | grep -v pulseaudio | grep -v grep >/dev/null 2>&1
+then
+	pulseaudio >/dev/null 2>&1 &
+fi
+
+if ! ps -ef | grep 'mplayer -slave' | grep -v grep >/dev/null 2>&1
+then
+	(rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out) 2>/dev/null
+	mkfifo /tmp/piplayer.in
+	# Remove shuffle and loop as we want it to play our random
+	mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $MIXEDLIST >/tmp/piplayer.out 2>/dev/null
+	#(rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out) 2>/dev/null
+fi
