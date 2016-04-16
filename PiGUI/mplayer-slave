@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Commands
+# pt_step 1 (>)		forward in playlist
+# quit (q)		exit player
+# pause (p)		pause playback
+# get_file_name		Gets current playing file
+# http://cpansearch.perl.org/src/GBROWN/Gtk2-Ex-MPlayerEmbed-0.02/mplayer-slave-spec.txt
+
+PLAYLIST="../ignore/playlist"
+MIXED="../ignore/mixedlist"
+realquit=0
+sort --random-sort $PLAYLIST > $MIXED
+
+(rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out; rm /tmp/pistop) 2>/dev/null
+
+mkfifo /tmp/piplayer.in
+
+nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $PLAYLIST >/tmp/piplayer.out 2>/dev/null &
+MPID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
+
+./PiMplayer
+kill $MPID
+
+# If stopped restart the whole thing
+if [[ ! -e /tmp/pistop ]]
+then
+  exec ./mplayer-slave
+fi
+
+(rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out; rm /tmp/pistop) 2>/dev/null

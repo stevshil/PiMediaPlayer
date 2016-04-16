@@ -12,6 +12,10 @@ def getdata():
   output=subprocess.check_output(["./getinfo"])
   return output
 
+def piclose():
+  os.system('echo stop >/tmp/pistop')
+  sys.exit(1)
+
 def shutdown():
   os.system('sudo init 0')
 
@@ -25,8 +29,12 @@ newtrack=info
 
 while controls != "X":
 
+  # Show controls
+  controls=buttonbox(info, image=img, choices=buttons)
+
   if controls == "X":
     sendcmd('q')
+    piclose()
     shutdown()
 
   if controls == ">\"":
@@ -38,11 +46,8 @@ while controls != "X":
     newtrack=info
     if oldtrack == newtrack:
       sendcmd('q')
-      shutdown()
+      sys.exit(0)
   if controls == "<<":
     sendcmd("pt_step -1 force")
     info=getdata()
 
-  # Show controls
-  print "Old: "+oldtrack+" : New: "+newtrack
-  controls=buttonbox(info, image=img, choices=buttons)
