@@ -1,9 +1,14 @@
 #!/usr/bin/python
 
-from easygui import *
+from Tkinter import *
+from PIL import ImageTk, Image
 import sys
 import subprocess
 import os
+
+global oldtrack
+global newtrack
+oldtrack="abc"
 
 def sendcmd(cmd):
   os.system('echo '+cmd+' >/tmp/piplayer.in')
@@ -19,35 +24,55 @@ def piclose():
 def shutdown():
   os.system('sudo init 0')
 
+def previoustrk():
+  sendcmd("pt_step -1 force")
+  info.set(getdata())
+
+def nexttrk():
+  global oldtrack,newtrack
+  sendcmd("pt_step 1")
+  oldtrack=newtrack
+  info.set(getdata())
+  newtrack=getdata()
+  if oldtrack == newtrack:
+    sendcmd('q')
+    sys.exit(0)
+  return (newtrack,oldtrack)
+
+def playpause():
+  sendcmd("p")
+
+def leave():
+  sendcmd('q')
+  piclose()
+  shutdown()
+
+
 title="Pi Kitchen Player"
 img="rpi-icon.gif"
-buttons=["<<",">\"",">>","X"]
-controls=""
-info=getdata()
-oldtrack="abc"
-newtrack=info
+newtrack=getdata()
 
-while controls != "X":
-
-  # Show controls
-  controls=buttonbox(info, image=img, choices=buttons)
-
-  if controls == "X":
-    sendcmd('q')
-    piclose()
-    shutdown()
-
-  if controls == ">\"":
-    sendcmd("p")
-  if controls == ">>":
-    sendcmd("pt_step 1")
-    oldtrack=newtrack
-    info=getdata()
-    newtrack=info
-    if oldtrack == newtrack:
-      sendcmd('q')
-      sys.exit(0)
-  if controls == "<<":
-    sendcmd("pt_step -1 force")
-    info=getdata()
-
+root=Tk()
+root.geometry('%dx%d+%d+%d' % (400, 200, 1, 1))
+info=StringVar()
+info.set(getdata())
+titlelbl=Label(root,text="GUI Pi Media Player",bg="white",fg="blue")
+logo=ImageTk.PhotoImage(Image.open('rpi-icon.gif'))
+controls=PanedWindow(orient=HORIZONTAL)
+playing=Label(root,textvariable=info,bg="white",fg="black")
+infobtn=Button(controls,text='I',command=getdata)
+backbtn=Button(controls,text='<<',command=previoustrk)
+skipbtn=Button(controls,text='>>',command=nexttrk)
+playbtn=Button(controls,text='>"',command=playpause)
+exitbtn=Button(controls,text='X',command=leave)
+titlelbl.pack(pady=10,ipadx=130)
+panel = Label(root, image=logo)
+panel.pack(side='top',expand='no')
+playing.pack(pady=15,ipadx=40)
+controls.pack(fill=BOTH,expand=1)
+buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
+print "Assembling"
+for x in buttons:
+  #x.pack(pady=10,padx=10,side=BOTTOM)
+  controls.add(x)
+root.mainloop()

@@ -7,16 +7,53 @@
 # get_file_name		Gets current playing file
 # http://cpansearch.perl.org/src/GBROWN/Gtk2-Ex-MPlayerEmbed-0.02/mplayer-slave-spec.txt
 
-PLAYLIST="../ignore/playlist"
-MIXED="../ignore/mixedlist"
+if [[ "$1" == "DEBUG" ]]
+then
+        MUSICDIR="../ignore/music"
+	PLAYLIST="../ignore/playlist"
+	MIXED="../ignore/mixedlist"
+else
+	MUSICDIR="$HOME/PiMusic"
+	PLAYLIST="$HOME/PiMusic/playlist"
+	MIXED="$HOME/PiMusic/mixedlist"
+fi
+
+# Check if music library has changed
+if [ -z "$ChkSum" ]
+then
+        ChkSum=0
+fi
+
+# Check if playlist exists or is empty
+if [[ ! -e $PLAYLIST ]] || [[ ! -s $PLAYLIST ]] || [[ $(find $MUSICDIR -type f | sum | awk '{print $1}') != $ChkSum ]]
+then
+	echo "Doing Checksum and creating playlist"
+        for suffix in m3u txt jpg url html htm
+        do
+                find $MUSICDIR -name "*.$suffix" -exec rm -f {} \; 2>/dev/null
+                suffix2=`echo "$suffix" | tr '[a-z]' '[A-Z]'`
+                find $MUSICDIR -name "*.$suffix2" -exec rm -f {} \; 2>/dev/null
+        done
+
+        find $MUSICDIR -type f > $PLAYLIST
+        find $MUSICDIR -type f | sum | awk '{print $1}' >$HOME/MusicChkSum
+fi
+
+if ps -ef | grep -v pulseaudio | grep -v grep >/dev/null 2>&1
+then
+        pulseaudio >/dev/null 2>&1 &
+fi
+
 realquit=0
+echo "Randomising play list"
 sort --random-sort $PLAYLIST > $MIXED
+#perl -MList::Util -e 'print List::Util::shuffle <>' $PLAYLIST > $MIXED
 
 (rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out; rm /tmp/pistop) 2>/dev/null
 
 mkfifo /tmp/piplayer.in
 
-nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $PLAYLIST >/tmp/piplayer.out 2>/dev/null &
+nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $MIXED >/tmp/piplayer.out 2>/dev/null &
 MPID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 
 ./PiMplayer
@@ -25,7 +62,7 @@ kill $MPID
 # If stopped restart the whole thing
 if [[ ! -e /tmp/pistop ]]
 then
-  exec ./mplayer-slave
+  exec ./mplayer-slave $1
 fi
 
 (rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out; rm /tmp/pistop) 2>/dev/null
