@@ -5,6 +5,7 @@ from PIL import ImageTk, Image
 import sys
 import subprocess
 import os
+import signal
 
 global oldtrack
 global newtrack
@@ -25,10 +26,12 @@ def shutdown():
   os.system('sudo init 0')
 
 def previoustrk():
+  global info
   sendcmd("pt_step -1 force")
   info.set(getdata())
 
 def gettrack():
+  global info
   info.set(getdata())
 
 def nexttrk():
