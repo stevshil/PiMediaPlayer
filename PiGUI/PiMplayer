@@ -28,6 +28,9 @@ def previoustrk():
   sendcmd("pt_step -1 force")
   info.set(getdata())
 
+def gettrack():
+  info.set(getdata())
+
 def nexttrk():
   global oldtrack,newtrack
   sendcmd("pt_step 1")
@@ -60,7 +63,7 @@ titlelbl=Label(root,text="GUI Pi Media Player",bg="white",fg="blue")
 logo=ImageTk.PhotoImage(Image.open('rpi-icon.gif'))
 controls=PanedWindow(orient=HORIZONTAL)
 playing=Label(root,textvariable=info,bg="white",fg="black")
-infobtn=Button(controls,text='I',command=getdata)
+infobtn=Button(controls,text='I',command=gettrack)
 backbtn=Button(controls,text='<<',command=previoustrk)
 skipbtn=Button(controls,text='>>',command=nexttrk)
 playbtn=Button(controls,text='>"',command=playpause)
