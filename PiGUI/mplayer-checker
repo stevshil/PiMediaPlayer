@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Script to check that mplayer is still running
+# If not restarts whole piece
+
+while :
+do
+	PID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
+	until [[ -z $PID ]]
+	do
+		sleep 10
+		PID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
+	done
+	pkill PiMplayer
+	pkill mplayer-slave
+	nohup ./mplayer-slave $1 &
+done

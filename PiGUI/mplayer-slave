@@ -56,8 +56,12 @@ mkfifo /tmp/piplayer.in
 nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $MIXED >/tmp/piplayer.out 2>/dev/null &
 MPID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 
+pkill mplayer-checker
+nohup ./mplayer-checker $1 >mpcheck.log &
+
 ./PiMplayer
 kill $MPID
+pkill mplayer-check
 
 # If stopped restart the whole thing
 if [[ ! -e /tmp/pistop ]]
