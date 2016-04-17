@@ -53,7 +53,12 @@ sort --random-sort $PLAYLIST > $MIXED
 
 mkfifo /tmp/piplayer.in
 
-nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $MIXED >/tmp/piplayer.out 2>/dev/null &
+if uname -a | grep -vi raspberrypi >/dev/null 2>&1
+then
+	nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols -nogui -af volnorm=2:0.75 -playlist $MIXED >/tmp/piplayer.out 2>/dev/null &
+else
+	nohup mplayer -slave -input file=/tmp/piplayer.in -noconsolecontrols nogui -af volnorm=2:0.75 -playlist $MIXED >/tmp/piplayer.out 2>/dev/null &
+fi
 MPID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 
 pkill mplayer-checker
