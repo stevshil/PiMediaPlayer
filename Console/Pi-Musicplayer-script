@@ -1,27 +1,9 @@
 #!/bin/bash
 MusicDir=$HOME/PiMusic
 Playlist=$HOME/PiMusic/playlist
-ChkSum=`cat $HOME/MusicChkSum`
 
-# Check if music library has changed
-if [ -z "$ChkSum" ]
-then
-	ChkSum=0
-fi
-
-# Check if playlist exists or is empty
-if [ ! -e $Playlist -o ! -s $Playlist -o `find $MusicDir -type f | sum | awk '{print $1}'` != $ChkSum ]
-then
-	for suffix in m3u txt jpg url html htm
-	do
-		find $MusicDir -name "*.$suffix" -exec rm -f {} \; 2>/dev/null
-		suffix2=`echo "$suffix" | tr '[a-z]' '[A-Z]'`
-		find $MusicDir -name "*.$suffix2" -exec rm -f {} \; 2>/dev/null
-	done
-
-	find $MusicDir -type f > $Playlist
-	find $MusicDir -type f | sum | awk '{print $1}' >$HOME/MusicChkSum
-fi
+# Get list of current songs and randomise
+find $Music -type f | egrep -v 'm3u|txt|jpg|url|html*' | sort -R > $Playlist
 
 if ps -ef | grep -v pulseaudio | grep -v grep >/dev/null 2>&1
 then
@@ -31,5 +13,6 @@ fi
 #mplayer -nogui -shuffle -loop 0 -af volnorm=2:0.75 -playlist $Playlist </dev/null
 if ! ps -ef | grep mplayer | grep -v grep >/dev/null 2>&1
 then
-	mplayer nogui -shuffle -loop 0 -af volnorm=2:0.75 -playlist $Playlist </dev/null
+	# Start mplayer, but don't shuffle or loop as we will deal with that
+	mplayer nogui -af volnorm=2:0.75 -playlist $Playlist </dev/null
 fi
