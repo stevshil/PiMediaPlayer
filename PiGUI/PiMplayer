@@ -81,4 +81,5 @@ print "Assembling"
 for x in buttons:
   #x.pack(pady=10,padx=10,side=BOTTOM)
   controls.add(x)
+root.after(30000,gettrack)
 root.mainloop()
