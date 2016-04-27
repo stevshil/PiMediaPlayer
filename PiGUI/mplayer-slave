@@ -18,26 +18,9 @@ else
 	MIXED="$HOME/PiMusic/mixedlist"
 fi
 
-# Check if music library has changed
-if [ -z "$ChkSum" ]
-then
-        ChkSum=0
-fi
-
-# Check if playlist exists or is empty
-if [[ ! -e $PLAYLIST ]] || [[ ! -s $PLAYLIST ]] || [[ $(find $MUSICDIR -type f | sum | awk '{print $1}') != $ChkSum ]]
-then
-	echo "Doing Checksum and creating playlist"
-        for suffix in m3u txt jpg url html htm
-        do
-                find $MUSICDIR -name "*.$suffix" -exec rm -f {} \; 2>/dev/null
-                suffix2=`echo "$suffix" | tr '[a-z]' '[A-Z]'`
-                find $MUSICDIR -name "*.$suffix2" -exec rm -f {} \; 2>/dev/null
-        done
-
-        find $MUSICDIR -type f > $PLAYLIST
-        find $MUSICDIR -type f | sum | awk '{print $1}' >$HOME/MusicChkSum
-fi
+# Valid audio files mixed cases
+# mp3 m4a ogg wav wma
+find $MUSICDIR -type f | egrep -i '(mp3|m4a|ogg|wav|wma)$' > $PLAYLIST
 
 if ps -ef | grep -v pulseaudio | grep -v grep >/dev/null 2>&1
 then
