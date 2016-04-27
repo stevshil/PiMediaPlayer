@@ -27,7 +27,7 @@ def shutdown():
 
 def previoustrk():
   global info
-  sendcmd("pt_step -1 force")
+  sendcmd("pt_step -1")
   info.set(getdata())
 
 def gettrack():
