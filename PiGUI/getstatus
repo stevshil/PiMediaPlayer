@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo -n "Current track: "
+grep -n "$($HOME/getinfo)" $HOME/PiMusic/mixedlist
+echo "Total tracks: $(wc -l <$HOME/PiMusic/mixedlist)"
+
+case $1 in
+	skip)	echo "pt_step 1" >/tmp/piplayer.in
+		;;
+	back)	echo "pt_step -1" >/tmp/piplayer.in
+		;;
+	quit)	echo "q" >/tmp/piplayer.in
+		;;
+	pause)	echo "p" >/tmp/piplayer.in
+		;;
+	*)	# do nothing
+		;;
+esac
