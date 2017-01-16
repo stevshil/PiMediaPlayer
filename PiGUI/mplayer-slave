@@ -12,7 +12,7 @@ then
         MUSICDIR="../ignore/music"
 	PLAYLIST="../ignore/playlist"
 	MIXED="../ignore/mixedlist"
-	VOL="1:0.25 -softvol -volume 5"
+	VOL="1:0.25 -softvol -volume 4"
 else
 	MUSICDIR="$HOME/PiMusic"
 	PLAYLIST="$HOME/PiMusic/playlist"

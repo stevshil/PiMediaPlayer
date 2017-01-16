@@ -15,7 +15,7 @@ def showcontrols():
   buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
   for x in buttons:
     controls.add(x)
-  root.after(500,showcontrols)
+  root.after(2000,showcontrols)
 
 
 def sendcmd(cmd):
@@ -24,7 +24,7 @@ def sendcmd(cmd):
 def getdata():
   output=subprocess.check_output(["./getinfo"])
   output2=subprocess.check_output(["./trackinfo"])
-  output=output + "\n" + output2
+  output=output + output2
   return output
 
 def piclose():
@@ -42,7 +42,10 @@ def previoustrk():
 def gettrack():
   global info
   info.set(getdata())
-  root.after(1000,gettrack)
+
+def chktrack():
+  gettrack()
+  root.after(10000,gettrack)
 
 def nexttrk():
   global oldtrack,newtrack
@@ -75,7 +78,7 @@ info.set(getdata())
 titlelbl=Label(root,text="GUI Pi Media Player",bg="white",fg="blue")
 logo=ImageTk.PhotoImage(Image.open('rpi-icon.gif'))
 controls=PanedWindow(orient=HORIZONTAL)
-playing=Label(root,textvariable=info,bg="white",fg="black")
+playing=Label(root,textvariable=info,bg="white",fg="black",font=("Arial",12))
 infobtn=Button(controls,text='Info',command=gettrack)
 backbtn=Button(controls,text='<<',command=previoustrk)
 skipbtn=Button(controls,text='>>',command=nexttrk)
@@ -84,9 +87,10 @@ exitbtn=Button(controls,text='X',command=leave)
 titlelbl.pack(pady=10,ipadx=130)
 panel = Label(root, image=logo)
 panel.pack(side='top',expand='no')
-playing.pack(pady=15,ipadx=40)
+#playing.pack(pady=15,ipadx=40)
+playing.pack(pady=0,ipadx=40)
 controls.pack(fill=BOTH,expand=1)
 print "Assembling"
 showcontrols()
-gettrack()
+chktrack()
 root.mainloop()
