@@ -11,11 +11,20 @@ global oldtrack
 global newtrack
 oldtrack="abc"
 
+def showcontrols():
+  buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
+  for x in buttons:
+    controls.add(x)
+  root.after(500,showcontrols)
+
+
 def sendcmd(cmd):
   os.system('echo '+cmd+' >/tmp/piplayer.in')
 
 def getdata():
   output=subprocess.check_output(["./getinfo"])
+  output2=subprocess.check_output(["./trackinfo"])
+  output=output + "\n" + output2
   return output
 
 def piclose():
@@ -33,6 +42,7 @@ def previoustrk():
 def gettrack():
   global info
   info.set(getdata())
+  root.after(1000,gettrack)
 
 def nexttrk():
   global oldtrack,newtrack
@@ -59,7 +69,7 @@ img="rpi-icon.gif"
 newtrack=getdata()
 
 root=Tk()
-root.geometry('%dx%d+%d+%d' % (400, 200, 1, 1))
+root.geometry('%dx%d+%d+%d' % (400, 220, 1, 1))
 info=StringVar()
 info.set(getdata())
 titlelbl=Label(root,text="GUI Pi Media Player",bg="white",fg="blue")
@@ -76,10 +86,7 @@ panel = Label(root, image=logo)
 panel.pack(side='top',expand='no')
 playing.pack(pady=15,ipadx=40)
 controls.pack(fill=BOTH,expand=1)
-buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
 print "Assembling"
-for x in buttons:
-  #x.pack(pady=10,padx=10,side=BOTTOM)
-  controls.add(x)
-root.after(30000,gettrack)
+showcontrols()
+gettrack()
 root.mainloop()

@@ -1,0 +1,5 @@
+# Write your default config options here!
+
+ao="alsa"
+a52drc=1
+
