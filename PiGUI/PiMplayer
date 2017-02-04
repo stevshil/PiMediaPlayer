@@ -15,7 +15,8 @@ def showcontrols():
   buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
   for x in buttons:
     controls.add(x)
-  root.after(2000,showcontrols)
+  gettrack()
+  root.after(5000,showcontrols)
 
 
 def sendcmd(cmd):
@@ -43,10 +44,6 @@ def gettrack():
   global info
   info.set(getdata())
 
-def chktrack():
-  gettrack()
-  root.after(10000,gettrack)
-
 def nexttrk():
   global oldtrack,newtrack
   sendcmd("pt_step 1")
@@ -62,7 +59,9 @@ def playpause():
   sendcmd("p")
 
 def leave():
+  os.system('echo "STOP" >stopme')
   sendcmd('q')
+  os.system('pkill getinfo')
   piclose()
   shutdown()
 
@@ -90,7 +89,6 @@ panel.pack(side='top',expand='no')
 #playing.pack(pady=15,ipadx=40)
 playing.pack(pady=0,ipadx=40)
 controls.pack(fill=BOTH,expand=1)
-print "Assembling"
+#print "Assembling"
 showcontrols()
-chktrack()
 root.mainloop()

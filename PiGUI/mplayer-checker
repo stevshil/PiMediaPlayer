@@ -29,5 +29,11 @@ do
 	done
 	pkill PiMplayer
 	pkill mplayer-slave
-	nohup ./mplayer-slave $1 &
+	if [ ! -e stopme ]
+	then
+		nohup ./mplayer-slave $1 &
+	else
+		exit 0
+	fi
 done
+rm stopme
