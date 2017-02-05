@@ -11,7 +11,7 @@ do
 	PID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 	until [[ -z $PID ]]
 	do
-		sleep 10
+		sleep 60
 		# Check mplayer is still alive
 		PID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 		# Check if track has changed and inform PiMplayer
