@@ -51,8 +51,8 @@ else
 fi
 MPID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 
-pkill mplayer-checker
-nohup ./mplayer-checker $1 >mpcheck.log 2>&1 &
+#pkill mplayer-checker
+#nohup ./mplayer-checker $1 >mpcheck.log 2>&1 &
 
 ./PiMplayer
 kill $MPID

@@ -5,6 +5,8 @@
 
 lasttrack=""
 currenttrack=""
+./mplayer-slave &
+sleep 60
 
 while :
 do
@@ -14,18 +16,6 @@ do
 		sleep 60
 		# Check mplayer is still alive
 		PID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
-		# Check if track has changed and inform PiMplayer
-		#if [[ "$lasttrack" == "$currenttrack" ]]
-		#then
-			#currenttrack=$(./getinfo)
-		#fi
-		#if [[ "$lasttrack" != "$currenttrack" ]]
-		#then
-			# Alert PiMplayer
-			#lasttrack="$currenttrack"
-			#echo "Alert PiMplayer to change display"
-			#kill -USR1 $PID
-		#fi
 	done
 	pkill PiMplayer
 	pkill mplayer-slave
@@ -33,6 +23,7 @@ do
 	then
 		nohup ./mplayer-slave $1 &
 	else
+		rm stopme
 		exit 0
 	fi
 done
