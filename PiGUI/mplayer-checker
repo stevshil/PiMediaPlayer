@@ -5,7 +5,7 @@
 
 lasttrack=""
 currenttrack=""
-./mplayer-slave &
+./mplayer-slave $1 &
 sleep 60
 
 while :
@@ -21,7 +21,7 @@ do
 	pkill mplayer-slave
 	if [ ! -e stopme ]
 	then
-		nohup ./mplayer-slave $1 &
+		./mplayer-slave $1 &
 	else
 		rm stopme
 		exit 0
