@@ -55,13 +55,18 @@ MPID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 #nohup ./mplayer-checker $1 >mpcheck.log 2>&1 &
 
 ./PiMplayer
-kill $MPID
+#kill $MPID
+#echo "Killed mplayer -slave $(date)" >/home/pi/player.log
 # pkill mplayer-check
 
 # If stopped restart the whole thing
-if [[ ! -e /tmp/pistop ]]
-then
-  exec ./mplayer-slave $1
-fi
+#if [[ ! -e /tmp/pistop ]]
+#then
+  #exec ./mplayer-slave $1 &
+#fi
 
+echo "Removing tmp files $(date)" >>/home/pi/player.log
 (rm /tmp/piplayer.in; rm /tmp/piplayer.out; rm nohup.out; rm /tmp/pistop) 2>/dev/null
+
+echo "Rebooting $(date)" >>/home/pi/player.log
+sudo init 6
