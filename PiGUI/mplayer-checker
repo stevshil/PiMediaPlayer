@@ -5,7 +5,7 @@
 
 lasttrack=""
 currenttrack=""
-./mplayer-slave $1 &
+#./mplayer-slave $1 &
 sleep 60
 
 while :
@@ -17,14 +17,17 @@ do
 		# Check mplayer is still alive
 		PID=$(ps -ef | grep 'mplayer -slave' | grep -v grep | awk '{print $2}')
 	done
-	pkill PiMplayer
-	pkill mplayer-slave
-	if [ ! -e stopme ]
-	then
-		./mplayer-slave $1 &
-	else
-		rm stopme
-		exit 0
-	fi
+	# Kill PiMplayer
+	kill -9 $(ps -ef | grep PiMplayer | awk '{print $2}')
+	#pkill PiMplayer
+	#pkill mplayer-slave
+	#if [ ! -e stopme ]
+	#then
+	#	# Restart mplayer if not stopped normally
+	#	./mplayer-slave $1 &
+	#else
+	#	rm stopme
+	#	exit 0
+	#fi
 done
 rm stopme

@@ -27,7 +27,7 @@ then
 	mkdir -p /home/pi/.config/lxsession/autostart
 	mkdir -p /home/pi/.config/lxsession/LXDE
 	echo "@xscreensaver -no-splash
-@~/mplayer-checker" >/home/pi/.config/lxsession/LXDE/autostart
+@~/mplayer-slave" >/home/pi/.config/lxsession/LXDE/autostart
 fi
 
 echo "[Desktop Entry]
