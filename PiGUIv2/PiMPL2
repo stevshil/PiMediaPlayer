@@ -1,0 +1,163 @@
+#!/usr/bin/python
+
+from Tkinter import *
+from PIL import ImageTk, Image
+import pygame
+import sys
+import os
+
+# Global variables required
+global oldtrack
+global newtrack
+global playstate
+global playlist
+global totaltracks
+global currenttracknum
+
+try:
+    if sys.argv[1] == "DEBUG":
+        debug=1
+except:
+    debug=0
+
+oldtrack="abc"
+playstate="play"
+
+if debug==1:
+    playlistfile="../ignore/mixedlist"
+else:
+    playlistfile=os.environ["HOME"]+"/PiMusic/mixedlist"
+totaltracks=0
+
+# Start playing
+def newplay():
+    global playlist, trackname, currenttracknum
+    # Starts a whole new shuffle of the play list
+    # Call the shuffle file command
+    if debug==1:
+        print "Shuffling playlist"
+        os.system("./shuffle.sh DEBUG")
+    else:
+        os.system("./shuffle.sh")
+    with open(playlistfile,"r") as playlistdata:
+        playlist=list(playlistdata)
+        playlistdata.close()
+    playlist.insert(0,"")
+
+    currenttracknum=1
+    trackname=playlist[currenttracknum].rstrip()
+    # Start playing
+    pygame.mixer.init(frequency=44100,buffer=64)
+    pygame.mixer.music.load(trackname)
+    pygame.mixer.music.set_volume(1.0)
+    pygame.mixer.music.play(start=0)
+    #pygame.mixer.music.set_endevent()
+
+    if debug==1:
+        print playlist
+        print str(currenttracknum) + " - " +trackname
+
+def getdata():
+    global currenttracknum, totaltracks
+    totaltracks=len(playlist)-1
+    output=os.path.basename(trackname)
+    output2="Current: "+str(currenttracknum)+"/"+str(totaltracks)
+    output=output +"\n"+ output2
+    info.set("                                                                       ")
+    info.set(output)
+
+def playpause():
+    global playstate
+    if playstate=="play":
+        pygame.mixer.music.pause()
+        playstate="pause"
+    else:
+        pygame.mixer.music.unpause()
+        playstate="play"
+
+def showcontrols():
+    buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
+    for x in buttons:
+        controls.add(x)
+
+def updatedisplay():
+    getdata()
+
+    # Move to next track if ended
+    if not pygame.mixer.music.get_busy():
+        nexttrk()
+        playstate="play"
+
+    # Update everything
+    root.after(1,updatedisplay)
+
+def leave():
+    pygame.mixer.music.stop()
+    playlist.close()
+    sys.exit(0)
+
+def previoustrk():
+    global currenttracknum, trackname
+    currenttracknum-=1
+    trackname=playlist[currenttracknum].rstrip()
+    pygame.mixer.quit()
+    pygame.mixer.init(frequency=44100,buffer=64)
+    pygame.mixer.music.load(trackname)
+    pygame.mixer.music.set_volume(1.0)
+    pygame.mixer.music.play(start=0)
+    playstate="play"
+    updatedisplay()
+    if debug==1:
+        print str(currenttracknum) + " - " +trackname
+
+def nexttrk():
+    global currenttracknum, trackname, totaltracks
+    currenttracknum+=1
+    pygame.mixer.music.set_endevent()
+
+    # Check if we are bigger than last track
+    if currenttracknum > totaltracks:
+        # Start again
+        pygame.mixer.quit()
+        newplay()
+
+    trackname=playlist[currenttracknum].rstrip()
+    pygame.mixer.quit()
+    pygame.mixer.init(frequency=44100,buffer=64)
+    pygame.mixer.music.load(trackname)
+    pygame.mixer.music.set_volume(1.0)
+    pygame.mixer.music.play(start=0)
+    updatedisplay()
+    if debug==1:
+        print str(currenttracknum) + " - " +trackname
+
+# Start GUI
+title="Pi Kitchen Player"
+img="rpi-icon.gif"
+newplay()
+
+root=Tk()
+w,h=root.winfo_screenwidth(),root.winfo_screenheight()
+#root.geometry('%dx%d+%d+%d' % (400, 220, 1, 1))
+root.geometry('%dx%d+%d+%d' % (w, h, 1, 20))
+info=StringVar()
+info.set(getdata())
+titlelbl=Label(root,text="GUI Pi Media Player",bg="white",fg="blue")
+logo=ImageTk.PhotoImage(Image.open('rpi-icon.gif'))
+controls=PanedWindow(orient=HORIZONTAL)
+playing=Label(root,textvariable=info,bg="white",fg="black",font=("Arial",12))
+infobtn=Button(controls,text='Info',command=updatedisplay)
+backbtn=Button(controls,text='<<',command=previoustrk)
+skipbtn=Button(controls,text='>>',command=nexttrk)
+playbtn=Button(controls,text='>"',command=playpause)
+exitbtn=Button(controls,text='X',command=leave)
+titlelbl.pack(pady=10,ipadx=130)
+panel = Label(root, image=logo)
+panel.pack(side='top',expand='no')
+#playing.pack(pady=15,ipadx=40)
+playing.pack(pady=0,ipadx=(w-20))
+controls.pack(fill=BOTH,expand=1)
+#print "Assembling"
+showcontrols()
+updatedisplay()
+root.mainloop()

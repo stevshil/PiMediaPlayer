@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Pi Music Player
+Name[en_US]=Pi Music Player
+Exec=/home/pi/startup.sh
+Comment[en_US]=Pi Music Player
+StartupNotify=false

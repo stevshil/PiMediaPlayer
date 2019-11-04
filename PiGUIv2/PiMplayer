@@ -1,0 +1,149 @@
+#!/usr/bin/python
+
+from Tkinter import *
+from PIL import ImageTk, Image
+import pygame
+import sys
+import subprocess
+import os
+import signal
+
+global oldtrack
+global newtrack
+global playstate
+global playlist
+global totaltracks
+global currenttracknum
+
+oldtrack="abc"
+playstate="play"
+pygame.mixer.init()
+
+if sys.argv[1] == "DEBUG":
+    playlistfile="../ignore/mixedlist"
+else:
+    playlistfile=os.environ["HOME"]+"/PiMusic/mixedlist"
+totaltracks=0
+
+playlist=open(playlistfile,"r")
+for line in playlist:
+    totaltracks+=1
+
+# Go back to start of file
+playlist.seek(0,0)
+
+def newplay():
+    global playlist, trackname, currenttracknum
+    # Starts a whole new shuffle of the play list
+        # Close the current file
+    if not playlist.closed:
+        playlist.close()
+    # Call the shuffle file command
+    if sys.argv[1] == "DEBUG":
+        os.system("./shuffle.sh DEBUG")
+    else:
+        os.system("./shuffle.sh")
+    playlist=open(playlistfile,"r")
+    trackname=playlist.readline().rstrip()
+    # Start playing
+    pygame.mixer.music.load(trackname)
+    pygame.mixer.music.play()
+    currenttracknum=1
+    # Set current track to play
+
+def showcontrols():
+  buttons=[exitbtn,backbtn,infobtn,skipbtn,playbtn]
+  for x in buttons:
+    controls.add(x)
+
+def updatedisplay():
+  gettrack()
+  root.after(5000,updatedisplay)
+
+def getdata():
+  global currenttracknum, totaltracks
+  output=os.path.basename(trackname)
+  output2="Current: "+str(currenttracknum)+"/"+str(totaltracks)
+  output=output +"\n"+ output2
+  return output
+
+def piclose():
+  pygame.mixer.music.stop()
+  playlist.close()
+  sys.exit(0)
+
+def shutdown():
+  pygame.mixer.music.stop()
+  playlist.close()
+  os.system('sudo init 0')
+
+def previoustrk():
+  global info, currenttracknum
+  currenttracknum-=1
+  # New method which will be to read previous line of file
+  info.set(getdata())
+
+def gettrack():
+  global info
+  info.set(getdata())
+
+def nexttrk():
+  global oldtrack,newtrack,currenttracknum
+  # New method to read next line of file
+  oldtrack=newtrack
+  newtrack=playlist.readline()
+  info.set(getdata())
+
+  if oldtrack == newtrack:
+    newplay()
+
+  pygame.mixer.music.load(trackname)
+  pygame.mixer.music.play()
+  newtrack=getdata()
+  currenttracknum+=1
+  return (newtrack,oldtrack)
+
+def playpause():
+  if playstate=="play":
+      pygame.mixer.music.pause()
+      playstate="pause"
+  else:
+      pygame.mixer.music.unpause()
+      playstate="play"
+
+def leave():
+  playlist.close()
+  sys.exit(0)
+  piclose()
+  shutdown()
+
+
+title="Pi Kitchen Player"
+img="rpi-icon.gif"
+newplay()
+
+root=Tk()
+w,h=root.winfo_screenwidth(),root.winfo_screenheight()
+#root.geometry('%dx%d+%d+%d' % (400, 220, 1, 1))
+root.geometry('%dx%d+%d+%d' % (w, h, 1, 20))
+info=StringVar()
+info.set(getdata())
+titlelbl=Label(root,text="GUI Pi Media Player",bg="white",fg="blue")
+logo=ImageTk.PhotoImage(Image.open('rpi-icon.gif'))
+controls=PanedWindow(orient=HORIZONTAL)
+playing=Label(root,textvariable=info,bg="white",fg="black",font=("Arial",12))
+infobtn=Button(controls,text='Info',command=gettrack)
+backbtn=Button(controls,text='<<',command=previoustrk)
+skipbtn=Button(controls,text='>>',command=nexttrk)
+playbtn=Button(controls,text='>"',command=playpause)
+exitbtn=Button(controls,text='X',command=leave)
+titlelbl.pack(pady=10,ipadx=130)
+panel = Label(root, image=logo)
+panel.pack(side='top',expand='no')
+#playing.pack(pady=15,ipadx=40)
+playing.pack(pady=0,ipadx=(w-20))
+controls.pack(fill=BOTH,expand=1)
+#print "Assembling"
+showcontrols()
+updatedisplay()
+root.mainloop()
