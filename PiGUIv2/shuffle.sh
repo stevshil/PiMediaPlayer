@@ -10,7 +10,12 @@
 # Set the directory for the file playlist
 if [[ "$1" == "DEBUG" ]]
 then
-  MUSICDIR="../ignore/music"
+  if [[ "$2" == "FULL" ]]
+  then
+    MUSICDIR="../ignore/music-full"
+  else
+    MUSICDIR="../ignore/music"
+  fi
 	PLAYLIST="../ignore/playlist"
 	MIXED="../ignore/mixedlist"
 	VOL="1:0.25 -softvol -volume 4"

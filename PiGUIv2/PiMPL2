@@ -20,6 +20,12 @@ try:
 except:
     debug=0
 
+try:
+    if sys.argv[2] == "FULL":
+        musicdir="FULL"
+except:
+    musicdir=""
+
 oldtrack="abc"
 playstate="play"
 
@@ -36,7 +42,7 @@ def newplay():
     # Call the shuffle file command
     if debug==1:
         print "Shuffling playlist"
-        os.system("./shuffle.sh DEBUG")
+        os.system("./shuffle.sh DEBUG "+musicdir)
     else:
         os.system("./shuffle.sh")
     with open(playlistfile,"r") as playlistdata:
