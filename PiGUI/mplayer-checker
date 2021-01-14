@@ -21,13 +21,13 @@ do
 	kill -9 $(ps -ef | grep PiMplayer | awk '{print $2}')
 	#pkill PiMplayer
 	#pkill mplayer-slave
-	#if [ ! -e stopme ]
+	#if [ ! -e /tmp/stopme ]
 	#then
 	#	# Restart mplayer if not stopped normally
 	#	./mplayer-slave $1 &
 	#else
-	#	rm stopme
+	#	rm /tmp/stopme
 	#	exit 0
 	#fi
 done
-rm stopme
+rm /tmp/stopme

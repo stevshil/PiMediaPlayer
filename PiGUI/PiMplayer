@@ -61,10 +61,13 @@ def playpause():
   sendcmd("p")
 
 def leave():
-  os.system('echo "STOP" >stopme')
+  #os.system('echo "STOP" >/tmp/stopme')
+  fh=open("/tmp/stopme","w")
+  fh.write("STOP\n")
+  fh.close()
   sendcmd('q')
-  os.system('pkill getinfo')
-  piclose()
+  os.system('./juststop')
+  #piclose()
   shutdown()
 
 

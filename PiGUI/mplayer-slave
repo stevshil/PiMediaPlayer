@@ -7,14 +7,14 @@
 # get_file_name		Gets current playing file
 # http://cpansearch.perl.org/src/GBROWN/Gtk2-Ex-MPlayerEmbed-0.02/mplayer-slave-spec.txt
 
-if [ -e stopme ]
+if [ -e /tmp/stopme ]
 then
-	rm stopme
+	rm /tmp/stopme
 fi
 
 if [[ "$1" == "DEBUG" ]]
 then
-        MUSICDIR="../ignore/music"
+  MUSICDIR="../ignore/music"
 	PLAYLIST="../ignore/playlist"
 	MIXED="../ignore/mixedlist"
 	VOL="1:0.25 -softvol -volume 4"

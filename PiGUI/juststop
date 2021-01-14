@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Script to just stop PiGUI without it rebooting automatically
+
+# Find mplayer-slave and mplayer-checker and kill it to prevent reboot
+kill `ps -ef | grep -v grep | egrep 'mplayer-(slave|checker)|getinfo' | awk '{print $2}'`

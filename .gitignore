@@ -2,3 +2,5 @@ ignore/*
 */playlist
 .vagrant
 PiGUI/mpcheck.log
+**/target
+PiGUI-trials
